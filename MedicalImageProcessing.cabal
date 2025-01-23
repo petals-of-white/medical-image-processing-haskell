@@ -6,7 +6,7 @@ cabal-version: 1.12
 
 name:           MedicalImageProcessing
 version:        0.1.0.0
-description:    Please see the README on GitHub at <https://github.com/petals-of-white/MedicalImageProcessing#readme>
+description:    Please see the README on GitHub at <https://github.com/petals-of-white/medical-image-processing-haskell#readme>
 category:       Graphics
 homepage:       https://github.com/petals-of-white/medical-image-processing-haskell#readme
 bug-reports:    https://github.com/petals-of-white/medical-image-processing-haskell/issues
@@ -34,6 +34,12 @@ library
   ghc-options: -Wall
   build-depends:
       base >=4.7 && <5
+    , friday
+    , lens
+    , monomer
+    , text
+    , text-show
+    , tinyfiledialogs
   default-language: GHC2021
 
 executable MedicalImageProcessing-exe
@@ -46,6 +52,12 @@ executable MedicalImageProcessing-exe
   build-depends:
       MedicalImageProcessing
     , base >=4.7 && <5
+    , friday
+    , lens
+    , monomer
+    , text
+    , text-show
+    , tinyfiledialogs
   default-language: GHC2021
 
 test-suite MedicalImageProcessing-test
@@ -59,4 +71,10 @@ test-suite MedicalImageProcessing-test
   build-depends:
       MedicalImageProcessing
     , base >=4.7 && <5
+    , friday
+    , lens
+    , monomer
+    , text
+    , text-show
+    , tinyfiledialogs
   default-language: GHC2021

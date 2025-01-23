@@ -12,7 +12,7 @@ extra-source-files:
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
-category:            Graphics
+category: Graphics
 
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
@@ -23,6 +23,12 @@ language: GHC2021
 
 dependencies:
   - base >= 4.7 && < 5
+  - monomer
+  - tinyfiledialogs
+  - text
+  - text-show
+  - lens
+  - friday
 
 ghc-options:
   - -Wall
