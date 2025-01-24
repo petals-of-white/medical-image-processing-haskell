@@ -29,6 +29,13 @@ dependencies:
   - text-show
   - lens
   - friday
+  - hs-dicom
+  - bytestring
+  - binary
+  - bytestring-to-vector
+  - either
+  - convertible
+  - vector
 
 ghc-options:
   - -Wall

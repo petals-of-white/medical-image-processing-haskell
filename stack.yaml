@@ -4,7 +4,6 @@
 # For advanced use and comprehensive documentation of the format, please see:
 # https://docs.haskellstack.org/en/stable/yaml_configuration/
 
-
 ghc-options:
   "$everything": -O0
 
@@ -33,19 +32,23 @@ snapshot: lts-22.43
 #   - auto-update
 #   - wai
 packages:
-- .
+  - .
 # Dependency packages to be pulled from upstream that are not in the snapshot.
 # These entries can reference officially published versions as well as
 # forks / in-progress versions pinned to a git hash. For example:
 #
 extra-deps:
-    - tinyfiledialogs-0.2.1.0
+  - tinyfiledialogs-0.2.1.0
+  - git: https://github.com/pigsinablanket/haskell-dicom
+    commit: 2f54e08a6cba37981feebf7a8f27dd2843354f5b
 # - acme-missiles-0.3
 # - git: https://github.com/commercialhaskell/stack.git
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
 #
 # extra-deps: []
-
+allow-newer: true
+allow-newer-deps:
+  - hs-dicom
 # Override default flag values for project packages and extra-deps
 # flags: {}
 

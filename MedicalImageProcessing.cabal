@@ -26,7 +26,10 @@ source-repository head
 
 library
   exposed-modules:
+      Core
+      DICOM
       Lib
+      Processing
   other-modules:
       Paths_MedicalImageProcessing
   hs-source-dirs:
@@ -34,12 +37,19 @@ library
   ghc-options: -Wall
   build-depends:
       base >=4.7 && <5
+    , binary
+    , bytestring
+    , bytestring-to-vector
+    , convertible
+    , either
     , friday
+    , hs-dicom
     , lens
     , monomer
     , text
     , text-show
     , tinyfiledialogs
+    , vector
   default-language: GHC2021
 
 executable MedicalImageProcessing-exe
@@ -52,12 +62,19 @@ executable MedicalImageProcessing-exe
   build-depends:
       MedicalImageProcessing
     , base >=4.7 && <5
+    , binary
+    , bytestring
+    , bytestring-to-vector
+    , convertible
+    , either
     , friday
+    , hs-dicom
     , lens
     , monomer
     , text
     , text-show
     , tinyfiledialogs
+    , vector
   default-language: GHC2021
 
 test-suite MedicalImageProcessing-test
@@ -71,10 +88,17 @@ test-suite MedicalImageProcessing-test
   build-depends:
       MedicalImageProcessing
     , base >=4.7 && <5
+    , binary
+    , bytestring
+    , bytestring-to-vector
+    , convertible
+    , either
     , friday
+    , hs-dicom
     , lens
     , monomer
     , text
     , text-show
     , tinyfiledialogs
+    , vector
   default-language: GHC2021
