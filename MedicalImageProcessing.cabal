@@ -41,6 +41,7 @@ library
     , bytestring
     , bytestring-to-vector
     , convertible
+    , data-endian
     , either
     , friday
     , hs-dicom
@@ -58,7 +59,7 @@ executable MedicalImageProcessing-exe
       Paths_MedicalImageProcessing
   hs-source-dirs:
       app
-  ghc-options: -Wall -threaded
+  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       MedicalImageProcessing
     , base >=4.7 && <5
@@ -66,6 +67,7 @@ executable MedicalImageProcessing-exe
     , bytestring
     , bytestring-to-vector
     , convertible
+    , data-endian
     , either
     , friday
     , hs-dicom
@@ -92,6 +94,7 @@ test-suite MedicalImageProcessing-test
     , bytestring
     , bytestring-to-vector
     , convertible
+    , data-endian
     , either
     , friday
     , hs-dicom

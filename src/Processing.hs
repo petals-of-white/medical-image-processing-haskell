@@ -9,6 +9,8 @@ import           Vision.Histogram
 import           Vision.Image                    as Img
 import           Vision.Primitive                (DIM1, ix1)
 
+import qualified Data.Vector.Storable            as VS
+
 
 convertNormalized :: Word16 -> Word8
 convertNormalized v = round ((fromIntegral v / fromIntegral (maxBound :: Word16) :: Float) * fromIntegral (maxBound :: Word8))
@@ -36,17 +38,30 @@ makeViewImage :: Manifest Word16 -> Bool -> Bool -> Manifest RGBAPixel
 makeViewImage sourceImg shouldFilter shouldSegment =
 
   case (sourceImg, shouldFilter, shouldSegment) of
-    (source, False, False) -> manifestWord16ToRGBA $ equalizeImage source
+    (source, False, False) -> manifestWord16ToRGBA $ normalizeHistogram  source 
     (source, True, False) ->
-      let fltred :: Manifest Word16 = blur 3 source in
+      let fltred :: Manifest Word16 = blur blurRadius source in
         manifestWord16ToRGBA  $
-            equalizeImage fltred
+            normalizeHistogram fltred
     (source, False, True) ->
-      manifestWord16ToRGBA $ equalizeImage $
+      manifestWord16ToRGBA $ normalizeHistogram $
         otsu (BinaryThreshold maxBound minBound) (Img.map (GreyPixel .convertNormalized) source :: Manifest GreyPixel)
     (source, True, True) ->
-      manifestWord16ToRGBA $ equalizeImage $
-        otsu (BinaryThreshold maxBound minBound) (Img.map (GreyPixel .convertNormalized) (blur 3 source :: Manifest Word16) :: Manifest GreyPixel)
+      manifestWord16ToRGBA $ normalizeHistogram $
+        otsu (BinaryThreshold maxBound minBound) (Img.map (GreyPixel .convertNormalized) (blur blurRadius source :: Manifest Word16) :: Manifest GreyPixel)
+    where
+        normalizeHistogram :: Manifest Word16 -> Manifest Word16
+        normalizeHistogram img =
+            let minP = VS.minimum (manifestVector img)
+                maxP = VS.maximum (manifestVector img)
+            in Img.map (\i ->
 
+                round (
+                    float (minBound :: Word16) + float (i - minP) / float (maxP - minP)* float (maxBound - minBound :: Word16) ))
+                img
+            where
+                float :: Word16 -> Float
+                float = fromIntegral
+        blurRadius = 3
 rgbaManifestToBS :: Manifest RGBAPixel -> BS.ByteString
 rgbaManifestToBS = vectorToByteString . manifestVector

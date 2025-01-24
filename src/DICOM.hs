@@ -1,4 +1,3 @@
-{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms   #-}
 
@@ -6,10 +5,12 @@ module DICOM where
 import           Control.Monad                   ((<=<))
 import           Core
 import           Data.Binary
+import           Data.Binary.Get
 import qualified Data.ByteString.Lazy            as BS
 import qualified Data.ByteString.Lazy.Char8      as BSChar
 import           Data.Dicom
 import           Data.Either.Combinators
+import           Data.Int                        (Int16)
 import qualified Data.List                       as L
 import           Data.Text                       (pack, unpack)
 import qualified Data.Vector.Storable            as VS
@@ -17,7 +18,8 @@ import           Data.Vector.Storable.ByteString
 import           Graphics.UI.TinyFileDialogs
 import           Vision.Image.Type               (Manifest (..))
 import           Vision.Primitive.Shape          (ix2)
-import Data.Binary.Get
+import Data.Endian
+
 pattern PixelData  :: Tag
 pattern PixelData = Tag 0x7FE0 0x0010
 pattern Rows :: Tag
@@ -35,7 +37,6 @@ pattern PixelRepresentation = Tag 0x0028 0x0103
 pattern PhotometricInterpretation :: Tag
 pattern PhotometricInterpretation = Tag 0x0028 0x0004
 
-
 selectFile :: IO AppEvent
 selectFile = do
     selectedFiles <- openFileDialog "Виберіть DICOM файл" "" ["*.dcm"] "DICOM files" False
@@ -51,7 +52,9 @@ manifestFromDICOM dicomEls = do
   photometricInterpret <- findEl PhotometricInterpretation
 
   pixelRepr <- findEl PixelRepresentation
-  let   word16vector = byteStringToVector (BS.toStrict $ elementValue pixData)
+  let   word16vector = 
+            VS.map ((fromIntegral :: Int16 -> Word16 ) . toLittleEndian) $ byteStringToVector (BS.toStrict $ elementValue pixData)
+            -- VS.map ((fromIntegral :: Int16 -> Word16)) $ byteStringToVector (BS.toStrict $ elementValue pixData)
 --   pixelInterpetStr <- string (elementValue photometricInterpret)
         pixelInterpetValue = BSChar.unpack (elementValue photometricInterpret)
 
