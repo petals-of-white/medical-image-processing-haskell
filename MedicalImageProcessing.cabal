@@ -30,6 +30,7 @@ library
       DICOM
       Lib
       Processing
+      Segmentation
   other-modules:
       Paths_MedicalImageProcessing
   hs-source-dirs:
@@ -44,6 +45,7 @@ library
     , data-endian
     , either
     , friday
+    , gloss-algorithms
     , hs-dicom
     , lens
     , monomer
@@ -70,6 +72,7 @@ executable MedicalImageProcessing-exe
     , data-endian
     , either
     , friday
+    , gloss-algorithms
     , hs-dicom
     , lens
     , monomer
@@ -97,6 +100,7 @@ test-suite MedicalImageProcessing-test
     , data-endian
     , either
     , friday
+    , gloss-algorithms
     , hs-dicom
     , lens
     , monomer

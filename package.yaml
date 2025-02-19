@@ -37,6 +37,7 @@ dependencies:
   - convertible
   - vector
   - data-endian
+  - gloss-algorithms
 
 ghc-options:
   - -Wall
