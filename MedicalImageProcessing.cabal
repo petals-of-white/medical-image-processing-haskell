@@ -37,14 +37,17 @@ library
       src
   ghc-options: -Wall
   build-depends:
-      base >=4.7 && <5
+      JuicyPixels
+    , base >=4.7 && <5
     , binary
     , bytestring
     , bytestring-to-vector
     , convertible
     , data-endian
     , either
+    , foldl
     , friday
+    , friday-juicypixels
     , gloss-algorithms
     , hs-dicom
     , lens
@@ -63,7 +66,8 @@ executable MedicalImageProcessing-exe
       app
   ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      MedicalImageProcessing
+      JuicyPixels
+    , MedicalImageProcessing
     , base >=4.7 && <5
     , binary
     , bytestring
@@ -71,7 +75,9 @@ executable MedicalImageProcessing-exe
     , convertible
     , data-endian
     , either
+    , foldl
     , friday
+    , friday-juicypixels
     , gloss-algorithms
     , hs-dicom
     , lens
@@ -91,7 +97,8 @@ test-suite MedicalImageProcessing-test
       test
   ghc-options: -Wall -threaded
   build-depends:
-      MedicalImageProcessing
+      JuicyPixels
+    , MedicalImageProcessing
     , base >=4.7 && <5
     , binary
     , bytestring
@@ -99,7 +106,9 @@ test-suite MedicalImageProcessing-test
     , convertible
     , data-endian
     , either
+    , foldl
     , friday
+    , friday-juicypixels
     , gloss-algorithms
     , hs-dicom
     , lens

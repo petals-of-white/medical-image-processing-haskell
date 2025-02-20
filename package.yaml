@@ -29,6 +29,8 @@ dependencies:
   - text-show
   - lens
   - friday
+  - friday-juicypixels
+  - JuicyPixels
   - hs-dicom
   - bytestring
   - binary
@@ -38,6 +40,7 @@ dependencies:
   - vector
   - data-endian
   - gloss-algorithms
+  - foldl
 
 ghc-options:
   - -Wall
