@@ -28,6 +28,7 @@ dependencies:
   - text
   - text-show
   - lens
+  - containers
   - friday
   - friday-juicypixels
   - JuicyPixels

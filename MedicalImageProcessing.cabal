@@ -42,6 +42,7 @@ library
     , binary
     , bytestring
     , bytestring-to-vector
+    , containers
     , convertible
     , data-endian
     , either
@@ -72,6 +73,7 @@ executable MedicalImageProcessing-exe
     , binary
     , bytestring
     , bytestring-to-vector
+    , containers
     , convertible
     , data-endian
     , either
@@ -103,6 +105,7 @@ test-suite MedicalImageProcessing-test
     , binary
     , bytestring
     , bytestring-to-vector
+    , containers
     , convertible
     , data-endian
     , either
