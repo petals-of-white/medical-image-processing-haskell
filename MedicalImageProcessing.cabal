@@ -28,8 +28,11 @@ library
   exposed-modules:
       Core
       DICOM
+      Histogram
       Lib
       Processing
+      QuadTree
+      Script
       Segmentation
   other-modules:
       Paths_MedicalImageProcessing
@@ -38,6 +41,7 @@ library
   ghc-options: -Wall
   build-depends:
       JuicyPixels
+    , algebraic-graphs
     , base >=4.7 && <5
     , binary
     , bytestring
@@ -69,6 +73,7 @@ executable MedicalImageProcessing-exe
   build-depends:
       JuicyPixels
     , MedicalImageProcessing
+    , algebraic-graphs
     , base >=4.7 && <5
     , binary
     , bytestring
@@ -101,6 +106,7 @@ test-suite MedicalImageProcessing-test
   build-depends:
       JuicyPixels
     , MedicalImageProcessing
+    , algebraic-graphs
     , base >=4.7 && <5
     , binary
     , bytestring

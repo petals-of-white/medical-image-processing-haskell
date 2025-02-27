@@ -41,6 +41,7 @@ dependencies:
   - vector
   - data-endian
   - gloss-algorithms
+  - algebraic-graphs
   - foldl
 
 ghc-options:
