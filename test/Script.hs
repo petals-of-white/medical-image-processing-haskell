@@ -8,8 +8,6 @@ import QuadTree
 import Vision.Primitive.Shape
 import Graphics.Gloss.Data.Extent (makeExtent)
 
-
-
 loadGrayscale :: FilePath -> IO (Manifest GreyPixel)
 loadGrayscale path = do
     imageRes <- readImage path
@@ -52,5 +50,6 @@ testSplitMerge path thresh = do
     saveBMP "merged.bmp" mergedManifest
 
     where mkRegion (stat, _id) ext = fromSingleRegion (Region stat ext)
+
 main:: IO ()
 main = putStrLn "Hello, Haskell!"

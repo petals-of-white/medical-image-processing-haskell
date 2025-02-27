@@ -1,27 +1,26 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
 module QuadTree where
+import           Data.Maybe                   (fromMaybe)
 import           Foreign.Storable             (Storable)
 import           Graphics.Gloss.Data.Extent
 import           Graphics.Gloss.Data.Quad
 import           Graphics.Gloss.Data.QuadTree
+import           System.IO.Unsafe             (unsafePerformIO)
 import           Vision.Image
 import           Vision.Primitive
-import Data.Maybe (fromMaybe)
-import           System.IO.Unsafe                      (unsafePerformIO)
 
+coordsInExtent :: Extent -> [Coord]
+coordsInExtent ext = [(x,y) | x <- [s..n-1], y <- [w..e-1]]
+    where (n,s,e,w) = takeExtent ext
+
+coordsInQuadTree :: QuadTree a -> Extent -> [Coord]
+coordsInQuadTree quadTree extent = concat [coordsInExtent ext | (_, ext) <- regions]
+    where regions = dfsQuadTreeWithExt quadTree extent
 
 instance Functor QuadTree where
     fmap f (TLeaf a) = TLeaf (f a)
     fmap f (TNode nw ne sw se) = TNode (fmap f nw) (fmap f ne) (fmap f sw) (fmap f se)
     fmap _ TNil = TNil
-
-
--- quadTreeToImage :: (Storable pix, Num pix) => 
---     (a -> Extent -> pix) -- ^ Function to create pixel from node value and extent
---     -> QuadTree a -- ^ QuadTree
---     -> Size -- ^ Image size
---     -> Manifest pix
-
 -- quadTreeToImage makePixel quadTree size@(Z :. h :. w) = fromFunction size $ fromMaybe 0 . getPixel quadTree (makeExtent h 0 w 0) . swapY
 --     where
 --         getPixel (TLeaf n) extent coord = if coordInExtent extent coord then Just (makePixel n extent) else Nothing
@@ -38,7 +37,7 @@ instance Functor QuadTree where
 
 --         swapY (Z :. y :. x) = (x, h - y)
 
-quadTreeToImage :: (Storable pix, Show pix, Num pix) => 
+quadTreeToImage :: (Storable pix, Show pix, Num pix) =>
     (a -> Extent -> pix) -- ^ Function to create pixel from node value and extent
     -> QuadTree a -- ^ QuadTree
     -> Size -- ^ Image size
@@ -51,7 +50,7 @@ quadTreeToImage makePixel quadTree size@(Z :. height :. width) = unsafePerformIO
 
     mapM_ (\(v, ext) -> writeExt mutImg (makePixel v ext) ext) dfsList
     freeze mutImg
-    
+
     where writeExt mutImg value ext =
             let (n, s, e, west) = takeExtent ext
                 points = [(y, x) | y <- [s..n-1], x <- [west..e-1]]
@@ -59,37 +58,47 @@ quadTreeToImage makePixel quadTree size@(Z :. height :. width) = unsafePerformIO
                 -- putStrLn $ "Writing " ++ show value ++ " to " ++ show (y, x)
                 write mutImg (ix2 (height - 1 - y) x) value) points
 
--- groupRegionsToManifest :: VS.Storable a => [GroupRegion a] -> Size -> Manifest a
--- groupRegionsToManifest groupRegions imgSize = unsafePerformIO $ do
---     mutManifest :: MutableManifest c a <- new imgSize
---     mapM_
---         (\groupRegion ->
---             mapM_
---                 (writeExt mutManifest (regionAverage $ groupRegionStats groupRegion) . regionExtent)
---                 (childrenRegions groupRegion)
---         )
---         groupRegions
-
---     unsafeFreeze mutManifest
-
---     where writeExt mutImg value ext =
---             let (n, s, e, w) = takeExtent ext
---                 points = [(y, x) | y <- [s..n], x <- [w..e]]
-            -- in mapM_ (\(y, x) -> write mutImg (ix2 (n - y) x) value) points
-
 dfsQuadTree :: QuadTree a -> [a]
 dfsQuadTree TNil = []
 dfsQuadTree (TLeaf a) = [a]
 dfsQuadTree (TNode nw ne sw se) = concat [dfsQuadTree nw, dfsQuadTree ne, dfsQuadTree sw, dfsQuadTree se]
 
 
+
+-- (nw, segmentN1) = makeTree (ix2 y x) (ix2 halfH halfW) currentSegment
+-- (ne, segmentN2) = makeTree (ix2 y (x + halfW)) (ix2 halfH (w - halfW)) segmentN1
+-- (sw, segmentN3) = makeTree (ix2 (y + halfH) x) (ix2 (h - halfH) halfW) segmentN2
+-- (se, segmentN4) = makeTree (ix2 (y + halfH) (x + halfW)) (ix2 (h - halfH) (w - halfW)) segmentN3
+
+extentToRect :: Extent -> Rect
+extentToRect extent = Rect {rX = w, rY = s, rWidth = e - w, rHeight = n - s}
+    where (n, s, e, w) = takeExtent extent
+
+
+rectToExtent :: Rect -> Extent
+rectToExtent Rect {rX, rY, rWidth, rHeight} = makeExtent (rY + rHeight) rY (rX + rWidth) rX
+
+
+takeQuadOfExtent :: Quad -> Extent -> Extent
+takeQuadOfExtent quad extent =
+    case quad of
+        NW -> makeExtent n (n - halfHeight) (w + halfWidth)  w
+        NE -> makeExtent n (n - halfHeight) e (w + halfWidth)
+        SW -> makeExtent (n - halfHeight) s (w + halfWidth)  w
+        SE -> makeExtent (n - halfHeight) s e (w + halfWidth)
+    where
+        (n, s, e, w) = takeExtent extent
+        halfHeight = ceiling $ fromIntegral (n - s) / (2 :: Float)
+        halfWidth = ceiling $ fromIntegral (e - w) / (2 :: Float)
+
+
 dfsQuadTreeWithExt :: QuadTree a -> Extent -> [(a, Extent)]
 dfsQuadTreeWithExt TNil _ = []
 dfsQuadTreeWithExt (TLeaf a) extent = [(a, extent)]
 dfsQuadTreeWithExt (TNode nw ne sw se) extent =
-    let extNE = cutQuadOfExtent NE extent
-        extNW = cutQuadOfExtent NW extent
-        extSE = cutQuadOfExtent SE extent
-        extSW = cutQuadOfExtent SW extent
+    let extNE = takeQuadOfExtent NE extent
+        extNW = takeQuadOfExtent NW extent
+        extSE = takeQuadOfExtent SE extent
+        extSW = takeQuadOfExtent SW extent
     in  concat [dfsQuadTreeWithExt nw extNW, dfsQuadTreeWithExt ne extNE, dfsQuadTreeWithExt se extSE, dfsQuadTreeWithExt sw extSW]
 

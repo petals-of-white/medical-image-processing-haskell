@@ -26,13 +26,9 @@ source-repository head
 
 library
   exposed-modules:
-      Core
-      DICOM
       Histogram
-      Lib
       Processing
       QuadTree
-      Script
       Segmentation
   other-modules:
       Paths_MedicalImageProcessing
@@ -48,24 +44,23 @@ library
     , bytestring-to-vector
     , containers
     , convertible
-    , data-endian
     , either
     , foldl
     , friday
     , friday-juicypixels
     , gloss-algorithms
-    , hs-dicom
     , lens
-    , monomer
     , text
     , text-show
-    , tinyfiledialogs
     , vector
   default-language: GHC2021
 
 executable MedicalImageProcessing-exe
   main-is: Main.hs
   other-modules:
+      Core
+      DICOM
+      Lib
       Paths_MedicalImageProcessing
   hs-source-dirs:
       app
@@ -99,6 +94,7 @@ test-suite MedicalImageProcessing-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Script
       Paths_MedicalImageProcessing
   hs-source-dirs:
       test
@@ -106,6 +102,7 @@ test-suite MedicalImageProcessing-test
   build-depends:
       JuicyPixels
     , MedicalImageProcessing
+    , QuickCheck
     , algebraic-graphs
     , base >=4.7 && <5
     , binary
@@ -113,17 +110,15 @@ test-suite MedicalImageProcessing-test
     , bytestring-to-vector
     , containers
     , convertible
-    , data-endian
     , either
     , foldl
     , friday
     , friday-juicypixels
     , gloss-algorithms
-    , hs-dicom
     , lens
-    , monomer
+    , quickcheck-instances
+    , test-invariant
     , text
     , text-show
-    , tinyfiledialogs
     , vector
   default-language: GHC2021

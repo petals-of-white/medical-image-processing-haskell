@@ -23,8 +23,6 @@ language: GHC2021
 
 dependencies:
   - base >= 4.7 && < 5
-  - monomer
-  - tinyfiledialogs
   - text
   - text-show
   - lens
@@ -32,14 +30,12 @@ dependencies:
   - friday
   - friday-juicypixels
   - JuicyPixels
-  - hs-dicom
   - bytestring
   - binary
   - bytestring-to-vector
   - either
   - convertible
   - vector
-  - data-endian
   - gloss-algorithms
   - algebraic-graphs
   - foldl
@@ -60,6 +56,10 @@ executables:
       - -with-rtsopts=-N
     dependencies:
       - MedicalImageProcessing
+      - monomer
+      - tinyfiledialogs
+      - data-endian
+      - hs-dicom
 
 tests:
   MedicalImageProcessing-test:
@@ -71,3 +71,6 @@ tests:
       # - -with-rtsopts=-N
     dependencies:
       - MedicalImageProcessing
+      - QuickCheck
+      - test-invariant
+      - quickcheck-instances

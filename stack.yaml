@@ -39,6 +39,7 @@ packages:
 #
 extra-deps:
   - tinyfiledialogs-0.2.1.0
+  - test-invariant-0.4.5.0
   - git: https://github.com/pigsinablanket/haskell-dicom
     commit: 2f54e08a6cba37981feebf7a8f27dd2843354f5b
 # - acme-missiles-0.3

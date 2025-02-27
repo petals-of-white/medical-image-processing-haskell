@@ -3,18 +3,18 @@ module Segmentation where
 
 import           Codec.Picture.Bitmap         (writeBitmap)
 import qualified Control.Foldl                as Foldl
+import           Data.Either                  (rights)
 import           Data.List                    as List
 import           Data.List.NonEmpty
+import           Data.Monoid                  (All (All))
 import qualified Data.Vector.Storable         as VS
-import           System.IO.Unsafe                      (unsafePerformIO)
 import           Graphics.Gloss.Data.Extent
 import           Graphics.Gloss.Data.QuadTree
 import           QuadTree
+import           System.IO.Unsafe             (unsafePerformIO)
 import           Vision.Image                 as I
 import           Vision.Image.JuicyPixels
 import           Vision.Primitive
-import Data.Either (rights)
-import Data.Monoid (All(All))
 
 -- | Check if standard deviation of the region is less than threshold
 stdThreshold :: (Real a, VS.Storable a) => Double -> Manifest a ->  Bool
@@ -28,17 +28,17 @@ computeStats img =
     VS.toList $ manifestVector img
     where
         maybeStats mMin mMax mMean mStd mLen = fmap (fmap truncate) $  RegionStatistics <$> mMin <*> mMax <*> mMean <*> mStd <*> mLen
-        folder = 
-            maybeStats <$> Foldl.minimum <*> Foldl.maximum 
+        folder =
+            maybeStats <$> Foldl.minimum <*> Foldl.maximum
             <*> fmap Just Foldl.mean <*> fmap Just Foldl.std
             <*> pure (Just $ shapeLength (manifestSize img))
-    
+
 
 data RegionStatistics pix = RegionStatistics {
-    regionMin     :: pix,
-    regionMax     :: pix,
-    regionAverage :: pix,
-    regionStd     :: pix,
+    regionMin            :: pix,
+    regionMax            :: pix,
+    regionAverage        :: pix,
+    regionStd            :: pix,
     regionNumberOfPixels :: Int
     } deriving (Functor, Show)
 
@@ -59,7 +59,7 @@ tryMergeByDiffTreshold :: Integral a => a -> Region a -> GroupRegion a -> Either
 tryMergeByDiffTreshold avgDiffTreshold region groupRegion =
     if abs (regionAverage regStats - regionAverage groupStats) <= avgDiffTreshold
     then if region `isTouchingGroup` groupRegion
-        then         
+        then
             Right GroupRegion {
                 groupRegionStats = RegionStatistics {
                     regionMin = min (regionMin regStats) (regionMin groupStats),
@@ -73,15 +73,15 @@ tryMergeByDiffTreshold avgDiffTreshold region groupRegion =
         else Left NotConnected
     else Left NotHomogeneous
 
-    where 
+    where
         GroupRegion {groupRegionStats = groupStats} = groupRegion
         Region {regionStats=regStats} = region
 
 
 isTouchingGroup :: Region a -> GroupRegion a -> Bool
 isTouchingGroup Region{regionExtent=rExt} GroupRegion {childrenRegions=children} =
-    let (All result) = mconcat $ 
-            [All (childExt `extentNeighbours` rExt) 
+    let (All result) = mconcat $
+            [All (childExt `extentNeighbours` rExt)
             |  Region{regionExtent=childExt} <- toList children]
     in result
 
@@ -139,25 +139,29 @@ regionSplit isHomogeneous makeRegionValue img  = fst $ makeTree (ix2 0 0) imgSiz
         makeTree :: Point -> Size -> Int -> (QuadTree (v, Int), Int)
         makeTree point@(Z :. y :. x) (Z :. h :. w) currentSegment
             | y < 0 || x < 0 || y + h  > imgHeight || x + w > imgWidth = error "Invalid region"
-            | h == 1 || w == 1 =
-                let onePixRegion = crop (Rect x y w h) img in
-                (TLeaf (makeRegionValue onePixRegion, currentSegment), currentSegment + 1)
+            | w == 0 || h == 0 = (TNil, currentSegment)
+            | h == 1 && w == 1 =
+                let elementaryRegion = crop (Rect x y w h) img in
+                (TLeaf (makeRegionValue elementaryRegion, currentSegment), currentSegment + 1)
             | otherwise =
                 let region = crop (Rect x y w h) img
-
                 in
                     if isHomogeneous region
                     then (TLeaf (makeRegionValue region, currentSegment), currentSegment + 1)
                     else
-                        let halfH = ceiling (fromIntegral h / 2 :: Double)
-                            halfW = ceiling (fromIntegral w / 2 :: Double)
-                            (nw, segmentN1) = makeTree point (ix2 halfH halfW) currentSegment
-                            (ne, segmentN2) = makeTree (ix2 y (x + halfW)) (ix2 halfH  (w - halfW)) segmentN1
+                        let halfH = h `div` 2 + if odd h then 1 else 0
+                            halfW = w `div` 2 + if odd w then 1 else 0
+
+                            (nw, segmentN1) = makeTree (ix2 y x) (ix2 halfH halfW) currentSegment
+                            (ne, segmentN2) = makeTree (ix2 y (x + halfW)) (ix2 halfH (w - halfW)) segmentN1
                             (sw, segmentN3) = makeTree (ix2 (y + halfH) x) (ix2 (h - halfH) halfW) segmentN2
-                            (se, segmentN4) = makeTree (ix2 halfH halfW) (ix2 (h - halfH) (w - halfW)) segmentN3
-                        in (TNode nw ne sw se, segmentN4)
+                            (se, segmentN4) = makeTree (ix2 (y + halfH) (x + halfW)) (ix2 (h - halfH) (w - halfW)) segmentN3
 
-
+                        in
+                            -- if h == 1 then (TNode nw ne TNil TNil, segmentN4) -- horizontal single-pixel line
+                            -- else if w == 1 then (TNode nw TNil sw TNil, segmentN4) -- vertical single-pixel line
+                            -- else
+                                 (TNode nw ne sw se, segmentN4) -- normal node
 
 
 -- | Perform merge step in 'split/merge' algorithm
@@ -181,7 +185,7 @@ mergeRegions singletonRegion tryAddToGroup quadTree extent =
             in
                 case containerRegions of
                     region:_ -> region : groups
-                    []    -> elementaryRegion : groups
+                    []       -> elementaryRegion : groups
 
 
 -- mergeRegions singletonRegion mergeTwo isHomogeneous isConnected quadTree extent =

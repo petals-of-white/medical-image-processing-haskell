@@ -12,6 +12,13 @@ packages:
   original:
     hackage: tinyfiledialogs-0.2.1.0
 - completed:
+    hackage: test-invariant-0.4.5.0@sha256:d1aa6b61e0057a4065eeff3286208e947a0b44c6a2186210399f5e5e7fb0d0dd,1902
+    pantry-tree:
+      sha256: 4a43697da369287edfe604a1a9d38f07fd50a49816028f25054b07842567cfa2
+      size: 326
+  original:
+    hackage: test-invariant-0.4.5.0
+- completed:
     commit: 2f54e08a6cba37981feebf7a8f27dd2843354f5b
     git: https://github.com/pigsinablanket/haskell-dicom
     name: hs-dicom
