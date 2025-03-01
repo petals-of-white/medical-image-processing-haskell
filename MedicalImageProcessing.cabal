@@ -30,6 +30,7 @@ library
       Processing
       QuadTree
       Segmentation
+      Utilities
   other-modules:
       Paths_MedicalImageProcessing
   hs-source-dirs:
@@ -94,6 +95,7 @@ test-suite MedicalImageProcessing-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Instances
       Script
       Paths_MedicalImageProcessing
   hs-source-dirs:
@@ -117,6 +119,7 @@ test-suite MedicalImageProcessing-test
     , gloss-algorithms
     , lens
     , quickcheck-instances
+    , random
     , test-invariant
     , text
     , text-show
