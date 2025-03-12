@@ -26,6 +26,7 @@ source-repository head
 
 library
   exposed-modules:
+      DICOM
       Histogram
       Processing
       QuadTree
@@ -45,11 +46,13 @@ library
     , bytestring-to-vector
     , containers
     , convertible
+    , data-endian
     , either
     , foldl
     , friday
     , friday-juicypixels
     , gloss-algorithms
+    , hs-dicom
     , lens
     , text
     , text-show
@@ -93,10 +96,10 @@ executable MedicalImageProcessing-exe
 
 test-suite MedicalImageProcessing-test
   type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  main-is: Script.hs
   other-modules:
       Instances
-      Script
+      Spec
       Paths_MedicalImageProcessing
   hs-source-dirs:
       test
@@ -112,11 +115,15 @@ test-suite MedicalImageProcessing-test
     , bytestring-to-vector
     , containers
     , convertible
+    , criterion
+    , data-endian
+    , deepseq
     , either
     , foldl
     , friday
     , friday-juicypixels
     , gloss-algorithms
+    , hs-dicom
     , lens
     , quickcheck-instances
     , random

@@ -27,6 +27,8 @@ dependencies:
   - text-show
   - lens
   - containers
+  - hs-dicom
+  - data-endian
   - friday
   - friday-juicypixels
   - JuicyPixels
@@ -63,7 +65,7 @@ executables:
 
 tests:
   MedicalImageProcessing-test:
-    main: Spec.hs
+    main: Script.hs
     source-dirs: test
     ghc-options:
       - -threaded
@@ -75,3 +77,6 @@ tests:
       - test-invariant
       - quickcheck-instances
       - random
+      - criterion
+      - hs-dicom
+      - deepseq

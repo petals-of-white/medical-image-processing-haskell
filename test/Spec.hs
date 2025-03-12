@@ -1,3 +1,4 @@
+module Spec where
 import           Data.List                    as List
 import qualified Data.List.NonEmpty           as NonEmpty
 import           Data.Maybe                   (fromJust)
