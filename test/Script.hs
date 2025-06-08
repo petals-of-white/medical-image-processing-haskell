@@ -20,7 +20,7 @@ import qualified Data.Vector.Storable as VS
 import Control.DeepSeq
 import GHC.Generics
 
-loadGrayscale :: FilePath -> IO (Manifest GreyPixel)
+loadGrayscale :: FilePath -> IO (Manifest Int)
 loadGrayscale path = do
     imageRes <- readImage path
     return $
@@ -28,17 +28,43 @@ loadGrayscale path = do
         case imageRes of
             Left err -> error err
             Right img -> case img of
-                ImageRGBA8 rgba -> pixelMap (\(PixelRGBA8 r _ _ _) -> r) rgba
-                ImageRGB8 rgb -> pixelMap blendRGB rgb
-                ImageRGBF rgb -> pixelMap (\(PixelRGBF r _ _) -> truncate $ r * 255) rgb
-                ImageY8 y -> y
-                _ -> error "Cannot convert image to grayscale"
+                ImageRGBA8 rgba -> pixelMap (\(PixelRGBA8 r g b _) -> fromIntegral (blendRGB' r g b)) rgba
+                ImageRGB8 rgb -> fromIntegral $ pixelMap blendRGB rgb
+                ImageY8 y -> pixelMap fromIntegral y
+                ImageY16 y16 -> pixelMap fromIntegral y16
+                ImageYA8 img -> pixelMap (\(PixelYA8 y _) -> fromIntegral y) img
+                ImageYA16 img -> pixelMap (\(PixelYA16 y _) -> fromIntegral y) img
+                ImageRGB16 rgb -> pixelMap (\(PixelRGB16 r g b) -> fromIntegral (blendRGB' r g b)) rgb
+                -- ImageRGBF rgb -> pixelMap (\(PixelRGBF r g b) -> truncate $ (blendRGBf r g b) * (maxBound :: Int)) rgb
+
+                other -> error $ "Cannot convert image to grayscale:" ++ show other
+
+
+instance Show DynamicImage where
+    show dImg = case dImg of
+        ImageY8 _ -> "ImageY"
+        ImageY16 _ -> "ImageY16"
+        ImageYA8 _ -> "ImageYA8"
+        ImageYA16 _ -> "ImageYA16"
+        ImageRGB8 _ -> "ImageRGB8"
+        ImageRGB16 _ -> "ImageRGB16"
+        ImageRGBA8 _ -> "ImageRGBA8"
+        ImageRGBA16 _ -> "ImageRGBA16"
+        ImageRGBF _ -> "ImageRGBF"
+        ImageYF _ -> "ImageYF"
+
+
+blendRGB' :: (Integral a) => a -> a -> a -> a
+blendRGB' r g b = round $ 0.299 * fromIntegral r + 0.587 * fromIntegral g + 0.114 * fromIntegral b
+
+blendRGBf :: (Fractional a) => a -> a -> a -> a
+blendRGBf r g b = 0.299 * r + 0.587 * g + 0.114 * b
 
 blendRGB :: PixelRGB8 -> Pixel8
 blendRGB (PixelRGB8 r g b) = round $ 0.299 * fromIntegral r + 0.587 * fromIntegral g + 0.114 * fromIntegral b
 
 
-testSplitMerge :: FilePath -> GreyPixel -> GreyPixel -> IO ()
+testSplitMerge :: FilePath -> Int -> Int -> IO ()
 testSplitMerge path stdThresh avgDiffThresh  = do
     img <- loadGrayscale path
 
@@ -53,13 +79,14 @@ testSplitMerge path stdThresh avgDiffThresh  = do
     putStrLn $ "There are " ++ show (length elements) ++ " segments"
     -- mapM_ print (take 7 elements)
     let quadImage = quadTreeToImage' quadTree imgSize
-        splitName = "split_" ++ show stdThreshByte ++ "_" ++ show avgDiffThreshByte ++ ".bmp"
-        (GreyPixel stdThreshByte) = stdThresh
-        (GreyPixel avgDiffThreshByte) = avgDiffThresh
-        mergeName = "merge_" ++ show stdThreshByte ++ "_" ++ show avgDiffThreshByte ++ ".bmp"
-    saveBMP "greyscale.bmp" img
+        splitName = "split_" ++ show stdThresh ++ "_" ++ show avgDiffThresh ++ ".bmp"
+        -- (GreyPixel stdThreshByte) = stdThresh
+        -- (GreyPixel avgDiffThreshByte) = avgDiffThresh
+        mergeName = "merge_" ++ show stdThresh ++ "_" ++ show avgDiffThresh ++ ".bmp"
 
-    saveBMP splitName quadImage
+    saveBMP "greyscale.bmp" $ I.map (GreyPixel . convertProportionally) img
+
+    saveBMP splitName $ I.map (GreyPixel . convertProportionally) quadImage
 
     let merged = mergeRegions1 avgDiffThresh quadTree (makeExtent h 0 w 0)
         mergedManifest = groupRegionsToManifest merged imgSize
@@ -81,7 +108,7 @@ testSplitMerge path stdThresh avgDiffThresh  = do
         _ -> do
             putStrLn "error, some groups are crazy"
             putStrLn   $ unlines $ take 10 $  Prelude.map (\(g1, g2) -> unlines [showGroup g1, showGroup g2]) sameIdGroups
-    saveBMP mergeName mergedManifest
+    saveBMP mergeName $ I.map (GreyPixel . convertProportionally) mergedManifest
 
 
 
@@ -127,12 +154,6 @@ convertProportionally fromV = minB + convert (float (fromV - minA) /  float (max
             minB = minBound :: b
             float = realToFrac :: a -> Float
 
-
--- instance Generic Tag
--- instance NFData Tag
-
--- instance Generic VR
--- instance NFData VR
 
 deriving instance Generic Tag
 instance NFData Tag

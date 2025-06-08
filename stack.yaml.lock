@@ -29,6 +29,17 @@ packages:
   original:
     commit: 2f54e08a6cba37981feebf7a8f27dd2843354f5b
     git: https://github.com/pigsinablanket/haskell-dicom
+- completed:
+    commit: beecc4eb7799fd26b181c75a87c15dea63441ddd
+    git: https://github.com/petals-of-white/dicom-haskell-library
+    name: dicom
+    pantry-tree:
+      sha256: 652e421c3e035f98c39669bec74f9a2265e31a9c13af1fe41f461730bfc5352c
+      size: 885
+    version: 0.3.0.1
+  original:
+    commit: beecc4eb7799fd26b181c75a87c15dea63441ddd
+    git: https://github.com/petals-of-white/dicom-haskell-library
 snapshots:
 - completed:
     sha256: 08bd13ce621b41a8f5e51456b38d5b46d7783ce114a50ab604d6bbab0d002146

@@ -42,6 +42,8 @@ extra-deps:
   - test-invariant-0.4.5.0
   - git: https://github.com/pigsinablanket/haskell-dicom
     commit: 2f54e08a6cba37981feebf7a8f27dd2843354f5b
+  - git: https://github.com/petals-of-white/dicom-haskell-library
+    commit: beecc4eb7799fd26b181c75a87c15dea63441ddd
 # - acme-missiles-0.3
 # - git: https://github.com/commercialhaskell/stack.git
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
@@ -50,6 +52,7 @@ extra-deps:
 allow-newer: true
 allow-newer-deps:
   - hs-dicom
+  - dicom
 # Override default flag values for project packages and extra-deps
 # flags: {}
 

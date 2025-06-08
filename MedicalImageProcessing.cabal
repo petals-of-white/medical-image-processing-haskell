@@ -47,6 +47,7 @@ library
     , containers
     , convertible
     , data-endian
+    , dicom
     , either
     , foldl
     , friday
@@ -80,6 +81,7 @@ executable MedicalImageProcessing-exe
     , containers
     , convertible
     , data-endian
+    , dicom
     , either
     , foldl
     , friday
@@ -118,6 +120,7 @@ test-suite MedicalImageProcessing-test
     , criterion
     , data-endian
     , deepseq
+    , dicom
     , either
     , foldl
     , friday

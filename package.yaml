@@ -29,6 +29,7 @@ dependencies:
   - containers
   - hs-dicom
   - data-endian
+  - dicom
   - friday
   - friday-juicypixels
   - JuicyPixels
